@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../lib/data-tables/media/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="../lib/data-tables/extensions/FixedHeader/js/dataTables.fixedHeader.min.js"></script>
+    <script type="text/javascript" src="../lib/fixed-header-table/fixed-header-table.min.js"></script>
+    
+    <script type="text/javascript" src="../lib/kendo/js/kendo.ui.core.min.js"></script>
+    <script type="text/javascript" src="../lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="../lib/kendo/js/cultures/kendo.culture.de-DE.min.js"></script>
+    <script type="text/javascript" src="../lib/kendo/js/messages/kendo.messages.de-DE.min.js"></script>
+    <script type="text/javascript" src="../kendox-core.js"></script>
+    <script type="text/javascript" src="../kendox-filter-box.js"></script>
+    <script type="text/javascript" src="../kendox-data-table.js"></script>
+    <script type="text/javascript" src="../kendox-data-navigator.js"></script>
+    <script type="text/javascript" src="../lib/chance/chance.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="../lib/data-tables/extensions/FixedHeader/css/dataTables.fixedHeader.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.common.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.silver.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="../css/kendox.css"></link>
+    
+    <style>
+        * {
+            font-family: Helvetica,Arial,sans-serif;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!--
+    <div class="k-loading-mask" style="width:100%;height:100%">
+        <span class="k-loading-text">Loading...</span>
+        <div class="k-loading-image"></div>
+        <div class="k-loading-color"></div>
+        </div>
+    </div> 
+    -->
+    <div id="xxxtoolBar">    
+  </div>
+  <div id="content"/>
+  </div>
+
+
+  <script type="text/javascript">
+      kendo.culture('de-DE');
+      
+      var records = chance.n(function () {
+          return {
+              firstName: chance.first(),
+              lastName: chance.last(),
+              postalCode: chance.zip()
+          }
+      }, 1123);
+      
+      
+      var chance = new Chance(0),
+          dataSource = new kendo.data.DataSource({
+              data: records, 
+              pageSize: 10,
+              page: 1,
+              sort: {
+                  field: 'lastName',
+                  dir: 'asc'
+              }
+          });
+      
+      
+      
+      
+      $('#content').kendoxDataNavigator({
+          headline: 'Order tracking',
+          dataSource: dataSource,
+          actions: [{
+              title: 'Export to Excel',
+              type: 'menu',
+              subactions: [{
+                  title: 'Current results'
+              }, {
+                  title: 'All results'
+              }]
+          }, {
+              title: 'Print',
+              type: 'menu',
+              subactions: [{
+                  title: 'Print current results'
+              }, {
+                  title: 'Print all results'
+              }]
+          }],
+          filters: [{
+              name: 'customerOrderNo',
+              type: 'text',
+              label: 'My order no.',
+              value: 'xyz',
+              disabled: function (filters) {
+                  return !!filters.orderNo;
+              },
+              maxLength: 10,
+              hint: 'Enter your purchase order number here.<br/>A search with wildcards is possible.'
+          }, {
+              type: 'text',
+              name: 'orderNo',
+              label: 'Order no.',
+              hint: 'Enter the order number here, e.g. 0001234567 or 1234567.<br/>A search with wildcards is possible.'
+          }, {
+              name: 'deliveryStatus',
+              type: 'singleSelect',
+              label: 'Delivery status',
+              value: 'delivered',
+              disabled: function (filters) {
+                  return !!filters.orderNo;
+              },
+              options: [
+                   'all', 'to be delivered', 'delivered', 'cancelled'    
+              ],
+              hint: 'Select an order status. Only orders with the selected status will be returned.'
+          }, {
+              name: 'materialNo',
+              type: 'text',
+              label: 'Material no.',
+              hint: 'Please enter the material number'
+          }, {
+              name: 'dateFrom',
+              type: 'date',
+              label: 'Date from',
+              hint: 'Please enter the date in the following format: dd.mm.yyyy',
+              min: new Date(1800, 0, 1)
+          }, {
+              name: 'dateTo',
+              type: 'date',
+              label: 'Date to',
+              value: new Date(2011, 0, 1),
+              disabled: function (filters) {
+                  return !!filters.orderNo;
+              },
+              hint: 'Please enter the date in the following format: dd.mm.yyyy'
+          }, {
+              name: 'types',
+              type: 'multiSelect',
+              hint: 'Please select the types',
+              label: 'Types',
+              mode: 'horizontal',
+              options: ['global', 'local'],
+              value: ['global']
+          }, {
+              name: 'dateRange',
+              type: 'dateRange',
+              label: 'Date range',
+              hint: 'Please enter the date range'
+          }, {
+              name: 'date2',
+              type: 'date',
+              label: 'Date'
+          }],
+          filterConstraints: [{
+              condition: function (filterValues) {
+                  return filterValues.dateFrom && filterValues.dateTo
+              },
+              errorMessage: "Please enter 'Date from' and 'Date to' properly."
+          }],
+          columns: [{
+              title: 'Names',
+              subColumns: [{
+                  title: "First name",
+                  field: 'firstName'
+              }, {
+                  title: "Last name",
+                  field: 'lastName',
+                  sortable: true
+              }]
+          }, {
+              title: "Street",
+              field: 'street'
+          }, {
+              title: 'Postal code',
+              field: 'postalCode',
+              align: 'center',
+              sortable: true
+          }, {
+              title: 'City',
+              field: 'city'
+          }],
+          showRowNumbers: true,
+          rowSelection: 'multi'
+      });
+      
+      $('#toolBar').kendoToolBar({
+            items: [
+                            {
+                                type: "buttonGroup",
+                                buttons: [
+                                    {text: "New", togglable: true, group: "main-actions" },
+                                    { spriteCssClass: "k-tool-icon k-justifyCenter", text: "Edit", togglable: true, group: "main-actions" },
+                                    { spriteCssClass: "k-tool-icon k-justifyRight", text: "Delete", togglable: true, group: "main-actions" }
+                                ]
+                            },
+                            { type: "button", text: "Button" },
+                            { type: "button", text: "Toggle Button", togglable: true },
+                            {
+                                type: "splitButton",
+                                text: "Insert",
+                                menuButtons: [
+                                    { text: "Insert above", icon: "insert-n" },
+                                    { text: "Insert between", icon: "insert-m" },
+                                    { text: "Insert below", icon: "insert-s" }
+                                ]
+                            },
+                          //  { type: "separator" },
+                            { template: "<label>Format:</label>" },
+                            {
+                                template: "<input id='dropdown' style='width: 150px;' />",
+                                overflow: "never"
+                            },
+              //  { type: "separator", overflow: "never" },
+                            {
+                                type: "buttonGroup",
+                                buttons: [
+                                    { spriteCssClass: "k-tool-icon k-justifyLeft", text: "Left", togglable: true, group: "text-align" },
+                                    { spriteCssClass: "k-tool-icon k-justifyCenter", text: "Center", togglable: true, group: "text-align" },
+                                    { spriteCssClass: "k-tool-icon k-justifyRight", text: "Right", togglable: true, group: "text-align" }
+                                ]
+                            },
+                            {
+                                type: "buttonGroup",
+                                buttons: [
+                                    { spriteCssClass: "k-tool-icon k-bold", text: "Bold", togglable: true, showText: "overflow" },
+                                    { spriteCssClass: "k-tool-icon k-italic", text: "Italic", togglable: true, showText: "overflow" },
+                                    { spriteCssClass: "k-tool-icon k-underline", text: "Underline", togglable: true, showText: "overflow" }
+                                ]
+                            },
+                            {
+                                type: "button",
+                                text: "Action",
+                                overflow: "always"
+                            },
+                            {
+                                type: "button",
+                                text: "Another Action",
+                                overflow: "always"
+                            },
+                            {
+                                type: "button",
+                                text: "Something else here",
+                                overflow: "always"
+                            }
+                        ]      
+      });
+      
+      setTimeout(function () {return;
+          var div = $('<div style="float: left; padding-right: 10px"/>');
+          div.append($('.k-toolbar .k-split-button').css('float', 'left').css('padding-right', '4px'));
+          $('.k-pager-wrap').prepend(div);
+      }, 0);
+  </script>
+</body>
+</html>

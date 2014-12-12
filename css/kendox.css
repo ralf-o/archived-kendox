@@ -1,0 +1,229 @@
+.kx-hidden {
+    visibility: hidden;
+}
+
+.kx-dialog {
+}
+
+.kx-dialog-content {
+    padding: 10px;
+}
+
+.kx-dialog-button-bar {
+    text-align: right;
+    padding: 5px;
+}
+
+.kx-dialog-message .kx-dialog-content {
+    margin: 5px;
+    padding-left: 70px;
+    background-image: url('img/dialog-information.png');
+    background-repeat: no-repeat;
+}
+
+.kx-dialog-warning .kx-dialog-content {
+    margin: 5px;
+    padding-left: 70px;
+    background-image: url('img/dialog-warning.png');
+    background-repeat: no-repeat;
+}
+
+.kx-dialog-error .kx-dialog-content {
+    margin: 5px;
+    padding-left: 70px;
+    background-image: url('img/dialog-error.png');
+    background-repeat: no-repeat;
+}
+
+/* ----------------------------------------- */
+
+.kx-filter-box {
+    padding: 6px;
+}
+
+.kx-filter-box .k-callout {
+    display: none;
+}
+
+.kx-filter-box-filter {
+    min-width: 208px;
+}
+
+.kx-filter-box-date-range-filter .k-datepicker {
+    width: 8em;   
+}
+
+.kx-filter-box-search-button {
+    margin-left: 40px !important;
+}
+
+/* ----------------------------------------- */
+
+.kx-data-navigator .kx-filter-box {
+    padding: 8px 0;
+    margin: -2px 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-radius: 0;
+}
+
+.kx-data-navigator .k-toolbar {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.kx-data-navigator-headline {
+    font-size: 18px;
+    padding: 0 16px 0 5px;
+}
+
+.kx-data-navigator .k-callout {
+    display: none;
+}
+
+.kx-data-navigator .k-pager-wrap {
+    margin-top: -1px;
+}
+
+.xkx-data-navigator .k-pager-wrap {
+    margin-top: 5px;
+    border: none;
+    background: none;
+}
+
+.kx-data-navigator tr.kx-state-open td {
+    border-top-style: solid !important;
+    border-top-width: 1px !important;
+    border-color: rgb(219, 219, 222) transparent transparent transparent;
+}
+
+.kx-data-navigator table {
+    border-collapse: collapse;
+}
+
+.kx-data-table-details-row td {
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-color: transparent transparent rgb(219, 219, 222) transparent;    
+}
+
+.kx-data-table-details-row:last-child td {
+    border-bottom-style: none;
+}
+
+.k-split-button .fake-menu-button {
+    border-radius: 4px !important;
+}    
+
+/*
+.kx-data-table table thead tr th:nth-child(1),
+.kx-data-table table thead tr th:nth-child(2),
+.kx-data-table table thead tr th:nth-child(3) {
+    border-left-style: none;
+    padding: 0;
+    vertical-align: middle;
+    text-align: center;
+}
+*/
+
+.kx-data-table table thead.k-grid-header th.k-header {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+
+.kx-data-table .kx-data-table-meta-column {
+    width: 10px;
+    text-align: center;
+    margin: 0;
+    padding: 4px 6px;
+}
+
+.kx-data-table thead .kx-data-table-meta-column {
+    vertical-align: middle;
+}
+
+.kx-data-table tbody .kx-data-table-meta-column {
+    vertical-align: top;
+}
+
+.kx-data-table table tbody tr td.kx-meta-column {
+    border-left-style: none;
+    padding: 4px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.kx-data-table table tbody td.kx-meta-column input {
+    border: 1px solid #444 !important;
+    background-color: white;
+}
+
+.kx-data-table .kx-data-table-meta-column button {
+    width: 20px;
+    min-width: 20px !important;
+    padding: 0;
+    margin: 0;
+}
+
+.kx-data-table .kx-data-table-action-column button {
+    width: auto;
+    min-width: none;
+    max-width: none;
+    padding: 2px 4px;
+}
+
+.kx-data-table .kx-data-table-action-column {
+    max-width: none !important;
+    width: 1px !important;
+}
+
+.xxxkx-data-table tbody .kx-data-table-action-column {
+    background-color: white;
+}
+
+.kx-data-table .kx-data-table-action-column td {
+    border: none;
+    padding: 0 1px;
+}
+
+/*
+.k-table-container {
+position: relative;
+height: 200px;
+padding-top: 30px !important;
+overflow: auto;
+}
+*/
+/*
+.k-table-container-inner {
+height: 100%;
+overflow: auto;
+position: static !important;
+}
+
+.k-table-container-inner table {
+overflow: auto;
+}
+
+.k-table-container-inner table thead th a {
+position: absolute;
+top: 0;
+line-height: 18px;
+padding-top: 7px !important;
+margin-top: 0 !important;
+}
+
+.k-table-container-inner table thead th {
+height: 18px;
+}
+
+
+.k-hidden-header-row {
+visibility: hidden;
+}
+
+.k-hidden-header-row th a {
+position: relative !important;
+}
+*/
