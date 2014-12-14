@@ -11,21 +11,36 @@
     <script type="text/javascript" src="../lib/angular/angular.min.js"></script>
     <script type="text/javascript" src="../lib/kendo/js/cultures/kendo.culture.de-DE.min.js"></script>
     <script type="text/javascript" src="../lib/kendo/js/messages/kendo.messages.de-DE.min.js"></script>
-    <script type="text/javascript" src="../kendox-core.js"></script>
-    <script type="text/javascript" src="../kendox-filter-box.js"></script>
-    <script type="text/javascript" src="../kendox-data-table.js"></script>
-    <script type="text/javascript" src="../kendox-data-navigator.js"></script>
+    <script type="text/javascript" src="../kx-core.js"></script>
+    <script type="text/javascript" src="../kx-filter-box.js"></script>
+    <script type="text/javascript" src="../kx-data-table.js"></script>
+    <script type="text/javascript" src="../kx-data-navigator.js"></script>
     <script type="text/javascript" src="../lib/chance/chance.js"></script>
     
     <link rel="stylesheet" type="text/css" href="../lib/data-tables/extensions/FixedHeader/css/dataTables.fixedHeader.min.css"></link>
     <link rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.common.min.css"></link>
     <link rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.silver.min.css"></link>
-    <link rel="stylesheet" type="text/css" href="../css/kendox.css"></link>
+    <link rel="stylesheet" type="text/css" href="../css/kx.css"></link>
     
     <style>
         * {
             font-family: Helvetica,Arial,sans-serif;
             font-size: 12px;
+        }
+        
+        .xxx {
+            border: 1px solid #eee;
+            border-width: 0 1px;
+            padding: 5px;
+        }
+        
+        .xxx .k-dropdown {
+            width: 100px;
+            max-width: 100px;
+        }
+        
+        .xxx .k-dropdown * {
+            background-color: white !important;
         }
     </style>
 </head>
@@ -71,7 +86,7 @@
       
       
       
-      $('#content').kendoxDataNavigator({
+      $('#content').kxDataNavigator({
           headline: 'Order tracking',
           dataSource: dataSource,
           actions: [{

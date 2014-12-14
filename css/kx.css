@@ -41,19 +41,26 @@
     padding: 6px;
 }
 
-.kx-filter-box .k-callout {
-    display: none;
+.kx-filter-box .kx-filter-box-column {
+    padding: 1ex 3px 3px 10px;
+    text-align: right;
+    vertical-align: top;
 }
 
-.kx-filter-box-filter {
+.kx-filter-box .kx-filter-box-filter-cell {
+    vertical-align: top;
+    padding: 0 0 5px 5px;
+}
+
+.kx-filter-box .kx-filter-box-filter {
     min-width: 208px;
 }
 
-.kx-filter-box-date-range-filter .k-datepicker {
+.kx-filter-box .kx-filter-box-date-range-filter .k-datepicker {
     width: 8em;   
 }
 
-.kx-filter-box-search-button {
+.kx-filter-box .kx-filter-box-search-button {
     margin-left: 40px !important;
 }
 
@@ -99,6 +106,12 @@
 
 .kx-data-navigator table {
     border-collapse: collapse;
+}
+
+
+.kx-data-table .kx-data-table-row-details-toggle {
+    padding: 0 2px 0 2px !important;
+    border-radius: 10px;
 }
 
 .kx-data-table-details-row td {
