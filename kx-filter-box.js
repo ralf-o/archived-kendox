@@ -94,7 +94,7 @@
     }
     
     createFilterOperatorButton = function (filterOptions) {
-        var ret = $('<button class="k-button" style="xborder: none; xbackground: none; xbackground-color: #f0f0f0; border-radius: 12px; margin-left: 4px; padding: 0 2px 1px 2px;"><span class="k-icon k-si-arrow-s"/></button>');
+        var ret = $('<button class="k-button" style="border: none; background: none; xbackground-color: #f0f0f0; border-radius: 12px; padding: 0 2px 1px 2px;"><span class="k-icon k-si-arrow-s"/></button>');
    
        
     $('<ul><li>contains</li><li class="k-state-selected" style="white-space: nowrap">starts with</span></li><li>ends with</ul>').kendoContextMenu({
