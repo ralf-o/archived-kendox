@@ -529,6 +529,7 @@
         }
     };
     
+
     // ---------------------------------------------------------------
     
     $.fn.kxFilterBox.registerFilterType('text', createTextFilter);
