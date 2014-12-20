@@ -7,7 +7,6 @@
         ui = kx.ui,
         idCounter = 0,
         filterTypeRegistry,
-        registeredFilterTypes2 = {},
         createFilterBox,
         createFilterOperatorButton,
         getInvolvedFilters,
@@ -32,30 +31,6 @@
         util.Arrays.forEach(filterTypes, function (filterType) {
             $.fn.kxFilterBox.registerFilterType(filterType); 
         });
-    };
-    
-    
-    $.fn.kxFilterBox.registerFilterType2 = function (filterTypeName, renderer) {
-        var ret = false;
-
-        if (typeof filterTypeName === 'string'
-                && filterTypeName.match(/^[a-zA-Z][a-zA-Z0-9]*$/)
-                && typeof renderer === 'function') {
-            registeredFilterTypes2[filterTypeName] =  renderer;
-        }
-        
-        return ret;
-    };
-    
-    $.fn.kxFilterBox.unregisterFilterType2 = function (filterTypeName) {
-        var ret = false;
-        
-        if (filterTypeName instanceof 'string' && registeredFilterTypes2.hasOwnProperty(filterTypeName)) {
-            delete registeredFilterTypes2[filterTypeName];
-            ret = true;
-        }
-        
-        return ret;
     };
     
     createFilterBox = function (options) {
@@ -152,15 +127,23 @@
     
     function createFilter(filterOptions, controller) {
         var ret,
-            filter;
+            filter,
+            filterType,
+            filterOperator,
+            filterViewName,
+            filterView;
         
         filterOptions = util.Objects.asObject(filterOptions);
 
         if (filterOptions
-                && typeof filterOptions.type === 'string'
-                && registeredFilterTypes2.hasOwnProperty(filterOptions.type)) {
+                && typeof filterOptions.type === 'string') {
 
-            filter = registeredFilterTypes2[filterOptions.type](filterOptions, controller);
+            filterType = filterTypeRegistry.getFilterTypeByName(filterOptions.type);
+            filterOperator = filterType.getDefaultOperator();
+            filterViewName = filterOperator.getViewName();
+            filterView = filterType.getFilterViewByOperator(filterOperator);
+          console.debug(filterOperator.getViewName())  
+            filter = filterView(filterOptions, controller);
         }
         
         ret = $('<div>');
@@ -518,6 +501,7 @@
         }
         
         this._name = name;
+        this._views = cfg.views;
         this._operators = operators;
         this._operatorsByName = operatorsByName;
         this._defaultOperator = defaultOperator;
@@ -539,6 +523,16 @@
         return this._operatorsByName[name] || null;    
     };
     
+    FilterType.prototype.getFilterViewByOperator = function (operator) {
+        var ret = null;
+        console.debug(1, operator.getName(),operator.getViewName(), this._views)
+        if (operator instanceof FilterOperator) {
+            ret = this._views[operator.getViewName()] || null;
+        }
+        
+        return ret;
+    };
+    
     // ------------------------
     
     
@@ -553,6 +547,7 @@
         
         this._name = name;
         this._caption = caption;
+        this._viewName = cfg.view;
     };
     
     FilterOperator.prototype.getName = function () {
@@ -668,12 +663,6 @@
 
     // ---------------------------------------------------------------
     
-    $.fn.kxFilterBox.registerFilterType2('text', createTextFilter);
-    $.fn.kxFilterBox.registerFilterType2('date', createDateFilter);
-    $.fn.kxFilterBox.registerFilterType2('dateRange', createDateRangeFilter);
-    $.fn.kxFilterBox.registerFilterType2('singleSelect', createSingleSelectFilter);
-    $.fn.kxFilterBox.registerFilterType2('multiSelect', createMultiSelectFilter);
-    
     filterTypeRegistry = new FilterTypeRegistry();
     
     $.fn.kxFilterBox.registerFilterTypes([{
@@ -728,7 +717,8 @@
         }, {
             name: 'between',
             caption: 'between',
-            view: 'dateRangeInput'
+            view: 'dateRangeInput',
+            isDefault: true
         }]
     }, {
         name: 'singleSelect',
