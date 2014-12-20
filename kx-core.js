@@ -92,6 +92,16 @@
 
     // ===============================================================
     
+    util.Strings = function () {
+        throw 'kx.util.Strings cannot be instantiated';
+    };
+    
+    util.Strings.matches = function (s, regex) {
+        return typeof s === 'string' && !!s.match(regex);
+    };
+    
+    // ===============================================================
+    
     util.Arrays = function () {
         throw 'kx.util.Arrays cannot be instantiated';
     }
@@ -138,6 +148,26 @@
                     ret.push(item);
                 }
             }
+        }
+        
+        return ret;
+    }
+    
+    util.Arrays.filterByUniqueIdentifier = function (arr, identifierFunction) {
+        var ret = [],
+            alreadyUsedIdentifiers = {};
+        
+        if (typeof identifierFunction === 'function') {
+            util.Arrays.forEach(arr, function (item) {
+                var identifier = identifierFunction(item),
+                    type = typeof identifier,
+                    id = type !== 'string' && type !== 'number' ? null : identifier.toString();
+
+                if  (id !== null && !alreadyUsedIdentifiers.hasOwnProperty(id)) {
+                    ret.push(item);
+                    alreadyUsedIdentifiers[id] = true;
+                }
+            });
         }
         
         return ret;

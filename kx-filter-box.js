@@ -6,7 +6,8 @@
         util = kx.util,
         ui = kx.ui,
         idCounter = 0,
-        registeredFilterTypes = {},
+        filterTypeRegistry,
+        registeredFilterTypes2 = {},
         createFilterBox,
         createFilterOperatorButton,
         getInvolvedFilters,
@@ -21,23 +22,36 @@
         }
     };
     
-    $.fn.kxFilterBox.registerFilterType = function (filterTypeName, renderer) {
+    
+    $.fn.kxFilterBox.registerFilterType = function (filterType) {
+        var type = new FilterType(filterType);
+        filterTypeRegistry.register(type);
+    };
+    
+    $.fn.kxFilterBox.registerFilterTypes = function (filterTypes) {
+        util.Arrays.forEach(filterTypes, function (filterType) {
+            $.fn.kxFilterBox.registerFilterType(filterType); 
+        });
+    };
+    
+    
+    $.fn.kxFilterBox.registerFilterType2 = function (filterTypeName, renderer) {
         var ret = false;
 
         if (typeof filterTypeName === 'string'
                 && filterTypeName.match(/^[a-zA-Z][a-zA-Z0-9]*$/)
                 && typeof renderer === 'function') {
-            registeredFilterTypes[filterTypeName] =  renderer;
+            registeredFilterTypes2[filterTypeName] =  renderer;
         }
         
         return ret;
     };
     
-    $.fn.kxFilterBox.unregisterFilterType = function (filterTypeName) {
+    $.fn.kxFilterBox.unregisterFilterType2 = function (filterTypeName) {
         var ret = false;
         
-        if (filterTypeName instanceof 'string' && registeredFilterTypes.hasOwnProperty(filterTypeName)) {
-            delete registeredFilterTypes[filterTypeName];
+        if (filterTypeName instanceof 'string' && registeredFilterTypes2.hasOwnProperty(filterTypeName)) {
+            delete registeredFilterTypes2[filterTypeName];
             ret = true;
         }
         
@@ -64,12 +78,14 @@
             if (idx === 0 || idx === Math.ceil(filterCount / 3) || idx === Math.ceil(2 * filterCount / 3)) {
                 innerTable = $('<table cellpadding="0" cellspacing="0"/>');
                 innerTableBody = $('<tbody/>').appendTo(innerTable);
-                outerTableRow.append($('<td/>').append(innerTable));
+                outerTableRow.append($('<td valign="top"/>').append(innerTable));
             }
 
             innerTableRow = $('<tr/>').appendTo(innerTableBody);
             innerTableRow.append(
-                    $('<td class="kx-filter-box-column"/>').append(createFilterLabel(filterOptions)).append('<div style="font-size: 0.9; color: #aaa; font-style: italic">contains...</div>'));
+                    $('<td class="kx-filter-box-column"/>').append(createFilterLabel(filterOptions)).append('<div style="font-size: 0.9; color: #aaa; font-style: italic">'
+                    + filterTypeRegistry.getFilterTypeByName(filterOptions.type).getDefaultOperator().getCaption()
+                    + '...</div>'));
         
           innerTableRow.append($('<td></td>').append(createFilterOperatorButton(filterOptions)));
             
@@ -93,15 +109,25 @@
         return ret;
     }
     
-    createFilterOperatorButton = function (filterOptions) {
-        var ret = $('<button class="k-button" style="border: none; background: none; xbackground-color: #f0f0f0; border-radius: 12px; padding: 0 2px 1px 2px;"><span class="k-icon k-si-arrow-s"/></button>');
-   
-       
-    $('<ul><li>contains</li><li class="k-state-selected" style="white-space: nowrap">starts with</span></li><li>ends with</ul>').kendoContextMenu({
-        target: ret,
-        showOn: "click",
-        alignToAnchor: true
-    });
+    createFilterOperatorButton = function (filterOptions, controller) {
+        var ret = $('<button class="k-button" style="border: none; background: none; xbackground-color: #f0f0f0; border-radius: 12px; padding: 0 2px 1px 2px;"><span class="k-icon k-si-arrow-s"/></button>'),
+            filterType = filterTypeRegistry.getFilterTypeByName(filterOptions.type),
+            filterOperators = filterType.getOperators(),
+            menu = $('<ul/>');
+        
+        util.Arrays.forEach(filterOperators, function (operator) {
+           menu.append($('<li style="white-space: nowrap"/>').text(operator.getCaption()));
+        });
+    
+         
+        
+    console.debug(filterType.getOperators());        
+        
+        menu.kendoContextMenu({
+            target: ret,
+            showOn: "click",
+            alignToAnchor: true
+        });
         
         return ret;
     }
@@ -132,9 +158,9 @@
 
         if (filterOptions
                 && typeof filterOptions.type === 'string'
-                && registeredFilterTypes.hasOwnProperty(filterOptions.type)) {
+                && registeredFilterTypes2.hasOwnProperty(filterOptions.type)) {
 
-            filter = registeredFilterTypes[filterOptions.type](filterOptions, controller);
+            filter = registeredFilterTypes2[filterOptions.type](filterOptions, controller);
         }
         
         ret = $('<div>');
@@ -429,8 +455,118 @@
 
         return ret;
     };
+       
+    // ------------------------
+    
+    var FilterTypeRegistry = function () {
+        this._registeredTypes = {};
+    };
+    
+    FilterTypeRegistry.prototype.register = function (filterType) {
+        if (filterType instanceof FilterType) {
+            this._registeredTypes[filterType.getName()] = filterType;
+        }
+    };
+    
+    FilterTypeRegistry.prototype.getFilterTypeByName = function (filterTypeName) {
+        var filterType = this._registeredTypes[filterTypeName];
         
-  
+        return filterType instanceof FilterType ? filterType : null;
+    };
+    
+    // ------------------------
+    
+    var FilterType = function (config) {
+        var cfg = util.Objects.asObject(config),
+            name = cfg.name,
+            defaultOperator = null,
+            operators = [],
+            operatorsByName = {};
+        
+        if (!util.Strings.matches(name, /^[a-z][a-zA-Z0-9]*$/)) {
+            throw 'Illegal filter name "' + name + "'";
+        }
+
+        util.Arrays.forEach (cfg.operators, function (operatorCfg) {
+            var operator,
+                operatorName;
+            
+            if (util.Objects.isObject(operatorCfg)
+                    && util.Objects.isObject(cfg.views)
+                    && util.Strings.matches(operatorCfg.name, /^[a-z][a-zA-Z0-9]*$/)
+                    && cfg.views.hasOwnProperty(operatorCfg.view)
+                    && typeof cfg.views[operatorCfg.view] === 'function'
+                    && !operatorsByName[operatorCfg.name]) {
+                
+                operator = new FilterOperator(operatorCfg);
+                
+                operators.push(operator);
+                operatorsByName[operator.getName()] = operator;
+                
+                if (operatorCfg.isDefault && defaultOperator === null) {
+                    defaultOperator = operator;
+                }
+            } 
+        });
+        
+        if (operators.length === 0) {
+            throw 'No valid operator available for filter type "' + name + '"';
+        }
+                
+        if (defaultOperator === null) {
+            defaultOperator = operators[0];
+        }
+        
+        this._name = name;
+        this._operators = operators;
+        this._operatorsByName = operatorsByName;
+        this._defaultOperator = defaultOperator;
+    };
+    
+    FilterType.prototype.getName = function () {
+        return this._name;
+    };
+    
+    FilterType.prototype.getOperators = function () {
+        return this._operators;    
+    };
+    
+    FilterType.prototype.getDefaultOperator = function () {
+        return this._defaultOperator;
+    };
+    
+    FilterType.prototype.getOperatorByName = function (name) {
+        return this._operatorsByName[name] || null;    
+    };
+    
+    // ------------------------
+    
+    
+    var FilterOperator = function (config) {
+        var cfg = util.Objects.asObject(config),
+            name = cfg.name,
+            caption = cfg.caption;
+         
+        if (!util.Strings.matches(name, /^[a-z][a-zA-Z0-9]*$/)) {
+            throw 'Illegal filter operator name "' + name + '"';
+        }
+        
+        this._name = name;
+        this._caption = caption;
+    };
+    
+    FilterOperator.prototype.getName = function () {
+        return this._name;
+    };
+    
+    FilterOperator.prototype.getCaption = function () {
+        return this._caption;
+    };
+    
+    FilterOperator.prototype.getViewName = function () {
+        return this._viewName;
+    };
+    
     // ------------------------
     
     var Controller = function (options) {
@@ -532,11 +668,104 @@
 
     // ---------------------------------------------------------------
     
-    $.fn.kxFilterBox.registerFilterType('text', createTextFilter);
-    $.fn.kxFilterBox.registerFilterType('date', createDateFilter);
-    $.fn.kxFilterBox.registerFilterType('dateRange', createDateRangeFilter);
-    $.fn.kxFilterBox.registerFilterType('singleSelect', createSingleSelectFilter);
-    $.fn.kxFilterBox.registerFilterType('multiSelect', createMultiSelectFilter);
+    $.fn.kxFilterBox.registerFilterType2('text', createTextFilter);
+    $.fn.kxFilterBox.registerFilterType2('date', createDateFilter);
+    $.fn.kxFilterBox.registerFilterType2('dateRange', createDateRangeFilter);
+    $.fn.kxFilterBox.registerFilterType2('singleSelect', createSingleSelectFilter);
+    $.fn.kxFilterBox.registerFilterType2('multiSelect', createMultiSelectFilter);
+    
+    filterTypeRegistry = new FilterTypeRegistry();
+    
+    $.fn.kxFilterBox.registerFilterTypes([{
+        name: 'text',
+        
+        views: {
+            textInput: createTextFilter
+        },
+        
+        operators: [{
+            name: 'equal',
+            caption: 'equal',
+            view: 'textInput',
+            isDefault: true
+        }, {
+            name: 'contains',
+            caption: 'contains',
+            view: 'textInput'
+        }, {
+            name: 'startsWith',
+            caption: 'starts with',
+            view: 'textInput'
+        }, {
+            name: 'endsWith',
+            caption: 'ends with',
+            view: 'textInput'
+        }]
+    }, {
+        name: 'date',
+                                         
+        views: {
+            dateInput: createDateFilter,
+            dateRangeInput: createDateRangeFilter
+        },
+                                         
+        operators: [{
+            name: 'lessOrEqual',
+            caption: 'less or equal',
+            view: 'dateInput'
+        }, {
+            name: 'less',
+            caption: 'less',
+            view: 'dateInput'
+        }, {
+            name: 'greaterOrEqual',
+            caption: 'greater or equal',
+            view: 'dateInput'
+        }, {
+            name: 'greater',
+            caption: 'greater',
+            view: 'dateInput'    
+        }, {
+            name: 'between',
+            caption: 'between',
+            view: 'dateRangeInput'
+        }]
+    }, {
+        name: 'singleSelect',
+       
+        views: {
+            singleSelection: createSingleSelectFilter
+        },
+                                        
+        operators: [{
+            name: 'equal',
+            caption: 'equal',
+            view: 'singleSelection',
+            isDefault: true
+        }, {
+            name: 'unequal',
+            caption: 'unequal',
+            view: 'singleSelection'
+        }]
+    }, {
+        name: 'multiSelect',
+       
+        views: {
+            multiSelection: createMultiSelectFilter
+        },
+                                        
+        operators: [{
+            name: 'includes',
+            caption: 'includes',
+            view: 'multiSelection',
+            isDefault: true
+        }, {
+            name: 'excludes',
+            caption: 'excludes',
+            view: 'multiSelection'
+        }]
+    }]);
+    
     
     // ---------------------------------------------------------------
 }());
