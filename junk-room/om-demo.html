@@ -18,13 +18,14 @@
     <script type="text/javascript" src="../lib/chance/chance.js"></script>
     
     <link rel="stylesheet" type="text/css" href="../lib/data-tables/extensions/FixedHeader/css/dataTables.fixedHeader.min.css"></link>
-    <link rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.common.min.css"></link>
-    <link rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.default.min.css"></link>
+    <xxxlink rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.common.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.common-bootstrap.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="../lib/kendo/styles/kendo.bootstrap.min.css"></link>
     <link rel="stylesheet" type="text/css" href="../css/kx.css"></link>
     
     <style>
         * {
-            font-family: Helvetica,Arial,sans-serif;
+            font-family: 'DejaVu Sansyyy', 'hOpen Sans',Helvetica,Arial,sans-serif;
             font-size: 12px;
         }
         
@@ -32,7 +33,134 @@
             border: none;
         }
         
+        .kx-data-navigator .k-grid {
+            border-color: #ddd !important;
+        }
         
+        .kx-data-navigator .k-pager-wrap {
+            border-width: 0 1px 1px 1px;
+            border-color: #ddd;
+            xbackground: none;
+            box-shadow: none;
+            padding: 6px 4px 2px 4px !important;
+        }
+        
+        .kx-data-table th, .kx-data-table th * {
+            font-size: 13px !important;
+        }
+        
+        .k-toolbar {
+            box-shadow: none !important;
+        }
+        
+        .kx-filter-box * {
+            xxxborder-radius: 0 !important;
+        }
+        
+        xxx.kx-filter-box .k-input {
+            box-shadow: none !important;
+        }
+        
+        xxxx.kx-filter-box .k-input {
+            text-indent: 0.3em !important;
+        }
+        
+        td.kx-data-table-meta-column {
+             xxbackground-color: #f8f8f8;
+            xxxborder-left-width: 0 !important;
+            xxxborder-right-width: 0 !important;
+            vertical-align: middle !important;
+        }
+        
+        .k-pager-wrap .k-pager-numbers a {
+            margin: 0 8px !important;
+            min-width: 0 !important;
+        }
+        
+        .k-pager-wrap a {
+            background: none !important;
+            border-width: 0;
+        }
+        
+        .k-pager-wrap .k-state-selected {
+            border-radius: 4px;
+            text-align: center !important;
+            width: auto;
+            padding: 0 1px;
+            border-width: 0 1px 0 1px;
+            margin: 0 8px !important;
+        }
+        
+        XXX.k-button,
+        XXX.k-input,
+        XXX.k-widget {
+            box-shadow: none !important;
+        }
+        
+        .k-grid {
+            border-radius: 0;
+            border-left-width: 1px !important;
+            border-right-width: 1px !important;
+            box-shadow: none !important;
+        }
+        
+        .k-pager-wrap a {
+            border: none !important;
+        }
+        
+        .kx-data-table th,
+        .kx-data-table td {
+            border-color: #ddd !important;
+        }
+        
+        .kx-data-table td {
+            border-top-width: 0 !important;
+            border-bottom-width: 0 !important;
+        }
+        
+        .kx-data-table .k-grid {
+            border: 1px solid red !important;
+        }
+        
+        .kx-data-table tr.k-alt {
+            background-color: #fafafa;
+        }
+        
+        
+        .k-tooltip-content {
+            background-color: none !important;
+            color: #444 !important;
+            border-width: 0;
+            border-radius: 8px;
+        }
+        
+        .k-tooltip {
+            border-width: 1px !important;
+            background-color: white !important;
+            border-color: #ccc !important;
+            padding: 4px 8px !important;
+            margin-top: 7px  !important;
+            position: absolute;
+            box-shadow: 0 5px 6px rgba(0,0,0,0.2) !important;
+        }
+        
+        
+        /*
+        .k-tooltip-content {
+            background-color: none !important;
+            color: white !important;
+            border-width: 0;
+            border-radius: 8px;
+        }
+        
+        .k-tooltip {
+            border-width: 1px !important;
+            background-color: #428bca !important;
+            padding: 8px 10px !important;
+            border: 1px solid #aaa !important;
+            border-radius: 4px;
+        }
+        */
         
         .xxx {
             border: 1px solid #eee;

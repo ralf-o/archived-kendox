@@ -9,6 +9,7 @@
         filterTypeRegistry,
         createFilterBox,
         createFilterOperatorButton,
+        createFilterOperatorLabel,
         getInvolvedFilters,
         setFilterTooltip;
 
@@ -44,12 +45,19 @@
             innerTableBody;
 
         util.Arrays.forEach(filters, function (filterOptions, idx) {
-            var innerTable,
+            var filterName,
+                filterType,
+                filterOperator,
+                innerTable,
                 innerTableRow,
                 innerTableCell;
             
+            filterName = filterOptions.name;
+            filterType = filterTypeRegistry.getFilterTypeByName(filterOptions.type),
+            filterOperator = filterType.getDefaultOperator();
+            controller.setFilterOperator(filterName, filterOperator.getName());
             controller.setFilterValue(util.Objects.asString(filterOptions.name), filterOptions.value);
-
+            
             if (idx === 0 || idx === Math.ceil(filterCount / 3) || idx === Math.ceil(2 * filterCount / 3)) {
                 innerTable = $('<table cellpadding="0" cellspacing="0"/>');
                 innerTableBody = $('<tbody/>').appendTo(innerTable);
@@ -58,11 +66,11 @@
 
             innerTableRow = $('<tr/>').appendTo(innerTableBody);
             innerTableRow.append(
-                    $('<td class="kx-filter-box-column"/>').append(createFilterLabel(filterOptions)).append('<div style="font-size: 0.9; color: #aaa; font-style: italic">'
-                    + filterTypeRegistry.getFilterTypeByName(filterOptions.type).getDefaultOperator().getCaption()
-                    + '...</div>'));
+                    $('<td class="kx-filter-box-column"/>')
+                        .append(createFilterLabel(filterOptions))
+                        .append(createFilterOperatorLabel(filterOptions, controller)));
         
-          innerTableRow.append($('<td></td>').append(createFilterOperatorButton(filterOptions)));
+          innerTableRow.append($('<td></td>').append(createFilterOperatorButton(filterOptions, controller)));
             
             
           
@@ -82,26 +90,46 @@
         }
         
         return ret;
-    }
+    };
+    
+    createFilterOperatorLabel = function (filterOptions, controller) {
+        var ret = $('<div class="kx-filter-box-filter-operator-label">')
+                    .text(controller.getFilterOperator(filterOptions.name) + ' ...');
+        
+        controller.observeFilterOperator(filterOptions.name, function (operator) {
+            var filterType = filterTypeRegistry.getFilterTypeByName(filterOptions.type),
+                filterOperator = filterType.getOperatorByName(operator);
+            
+            if (filterOperator) {
+                ret.text(filterOperator.getCaption() + ' ...');
+            }
+        });
+        
+        return ret;
+    };
     
     createFilterOperatorButton = function (filterOptions, controller) {
-        var ret = $('<button class="k-button" style="border: none; background: none; xbackground-color: #f0f0f0; border-radius: 12px; padding: 0 2px 1px 2px;"><span class="k-icon k-si-arrow-s"/></button>'),
+        var ret = $('<button class="k-button" style="xxborder: none; background: none; xbackground-color: #f0f0f0; border-radius: 13px;padding: 0 2px 0px 2px; margin: 2px 4px"><span class="k-icon k-si-arrow-s"/></button>'),
+            filterName = filterOptions.name,
             filterType = filterTypeRegistry.getFilterTypeByName(filterOptions.type),
             filterOperators = filterType.getOperators(),
             menu = $('<ul/>');
         
         util.Arrays.forEach(filterOperators, function (operator) {
-           menu.append($('<li style="white-space: nowrap"/>').text(operator.getCaption()));
+           menu.append($('<li style="white-space: nowrap"/>')
+               .attr('data-operator', operator.getName())        
+               .text(operator.getCaption()));
         });
     
          
         
-    console.debug(filterType.getOperators());        
-        
         menu.kendoContextMenu({
             target: ret,
             showOn: "click",
-            alignToAnchor: true
+            alignToAnchor: true,
+            select: function (event) {
+                controller.setFilterOperator(filterName, $(event.item).attr('data-operator'));
+            }
         });
         
         return ret;
@@ -130,19 +158,15 @@
             filter,
             filterType,
             filterOperator,
-            filterViewName,
             filterView;
         
         filterOptions = util.Objects.asObject(filterOptions);
 
         if (filterOptions
                 && typeof filterOptions.type === 'string') {
-
             filterType = filterTypeRegistry.getFilterTypeByName(filterOptions.type);
-            filterOperator = filterType.getDefaultOperator();
-            filterViewName = filterOperator.getViewName();
-            filterView = filterType.getFilterViewByOperator(filterOperator);
-          console.debug(filterOperator.getViewName())  
+            filterView = filterType.getView();
+
             filter = filterView(filterOptions, controller);
         }
         
@@ -180,7 +204,7 @@
             input.addClass('k-state-disabled');                
         }
         
-        controller.observeFilterValues(function (values) {
+        controller.observeFilters(function (values) {
             var value = util.Objects.asString(values[filterName]);
             controller.setFilterValue(filterName, value);
             
@@ -255,7 +279,7 @@
         
         if (disabled !== undefined && disabled !== null) {
             if (typeof disabled === 'function') {
-                controller.observeFilterValues(function (values) {
+                controller.observeFilters(function (values) {
                     if (disabled(values)) {
                         component.enable(false);
                     } else {
@@ -345,7 +369,7 @@
         
         if (disabled !== undefined && disabled !== null) {
             if (typeof disabled === 'function') {
-                controller.observeFilterValues(function (values) {
+                controller.observeFilters(function (values) {
                     if (disabled(values)) {
                         component.enable(false);
                     } else {
@@ -395,14 +419,20 @@
     };
         
     setFilterTooltip = function (container, hint) {
-        var tip = $.trim(hint);
+        var tip = $.trim(hint),
+            hideOnClickCallback;
 
         if (tip !== '') {
-            container.attr('title', tip);
-
+            hideOnClickCallback = function () {
+                container.data('kendoTooltip').hide();
+                $(window).off('click', hideOnClickCallback);
+            }
+            
+            
             container.kendoTooltip({
                 position: 'top',
-                showAfter: 500,
+                showAfter: 800,
+                content: tip,
                 callout: false,
                 width: (tip.length < 50 ? null : '20em'),
                 animation: {
@@ -414,9 +444,22 @@
                         duration: 200,
                         effects: 'fade:out'
                     }
+                },
+                show: function () {
+                    $(window).on('click', hideOnClickCallback);
+                },
+                hide: function () {
+                    $(window).off('click', hideOnClickCallback);
                 }
             });
-        }      
+            
+            container.on('mouseout', function () {
+               hideOnClickCallback(); 
+            });
+        } 
+        
+        $(window).click(function onClick() {
+        });
     };
     
     getInvolvedFilters = function (options) {
@@ -475,10 +518,8 @@
                 operatorName;
             
             if (util.Objects.isObject(operatorCfg)
-                    && util.Objects.isObject(cfg.views)
+                    && typeof cfg.view === 'function'
                     && util.Strings.matches(operatorCfg.name, /^[a-z][a-zA-Z0-9]*$/)
-                    && cfg.views.hasOwnProperty(operatorCfg.view)
-                    && typeof cfg.views[operatorCfg.view] === 'function'
                     && !operatorsByName[operatorCfg.name]) {
                 
                 operator = new FilterOperator(operatorCfg);
@@ -501,7 +542,7 @@
         }
         
         this._name = name;
-        this._views = cfg.views;
+        this._view = cfg.view;
         this._operators = operators;
         this._operatorsByName = operatorsByName;
         this._defaultOperator = defaultOperator;
@@ -523,15 +564,9 @@
         return this._operatorsByName[name] || null;    
     };
     
-    FilterType.prototype.getFilterViewByOperator = function (operator) {
-        var ret = null;
-        console.debug(1, operator.getName(),operator.getViewName(), this._views)
-        if (operator instanceof FilterOperator) {
-            ret = this._views[operator.getViewName()] || null;
-        }
-        
-        return ret;
-    };
+    FilterType.prototype.getView = function () {
+        return this._view;
+    }
     
     // ------------------------
     
@@ -547,7 +582,6 @@
         
         this._name = name;
         this._caption = caption;
-        this._viewName = cfg.view;
     };
     
     FilterOperator.prototype.getName = function () {
@@ -558,60 +592,87 @@
         return this._caption;
     };
     
-    FilterOperator.prototype.getViewName = function () {
-        return this._viewName;
-    };
-    
     // ------------------------
     
     var Controller = function (options) {
         var filterName;
 
-        this.filterValues = {};
-        this.filterErrors = {};
-        this.filterNames = [];
-        this.filterValuesObservers = [];
+        this._filterValues = {};
+        this._filterOperators = {};
+        this._filterErrors = {};
+        this._filterNames = [];
+        this._filterObservers = [];
+        this._filterValueObservers = {};
+        this._filterOperatorObservers = {};
         
         for (var i = 0; i < options.filters.length; ++i) {
             filterName = options.filters[i].name;
-            this.filterNames.push(filterName);
-            this.filterValues[filterName] = options.filters[i].value;
+            this._filterNames.push(filterName);
+            this._filterValues[filterName] = options.filters[i].defaultValue;
+            this._filterOperators[filterName] = options.filters[i].defaultOperator;
+            this._filterValueObservers[filterName] = [];
+            this._filterOperatorObservers[filterName] = [];
         }
 
         this.options = options;
     } 
     
     Controller.prototype.getFilterValue = function (filterName) {
-        return this.filterValues[filterName];
+        return this._filterValues[filterName];
     }
     
     Controller.prototype.setFilterValue = function (filterName, value) {
         var me = this,
-            oldValue = this.filterValues[filterName];
+            oldValue = this._filterValues[filterName];
         
-        if (oldValue !== value) {
-            this.filterValues[filterName] = value;
+        if (this._filterValues.hasOwnProperty(filterName) && oldValue !== value) {
+            this._filterValues[filterName] = value;
 
-            for (var i = 0; i < me.filterValuesObservers.length; ++i) {
-                me.filterValuesObservers[i](me.filterValues);
-            }
+            util.Arrays.forEach(this._filterValueObservers[filterName], function (observer) {
+                observer(value);   
+            });
+            
+            util.Arrays.forEach(this._filterObservers, function (observer) {
+                observer(me._filterValues, me._filterOperators);
+            });
+        }
+    };
+    
+    Controller.prototype.getFilterOperator = function (filterName) {
+        return this._filterOperators[filterName];
+    };
+        
+    Controller.prototype.setFilterOperator = function (filterName, operator) {
+        var me = this,
+            oldOperator = this._filterOperators[filterName];
+
+        if (this._filterOperators.hasOwnProperty(filterName) && oldOperator !== operator) {
+            this._filterOperators[filterName] = operator;
+
+            util.Arrays.forEach(this._filterOperatorObservers[filterName], function (observer) {
+                observer(operator);
+            });
+            
+            util.Arrays.forEach(this._filterObservers, function (observer) {
+                observer(me._filterValues, me._filterOperators);
+            });
         }
     };
     
     Controller.prototype.clearFilterErrors = function (filterName, errors) {
-        delete this.filterErrors[filterName];
+        delete this._filterErrors[filterName];
     };
     
     Controller.prototype.setFilterErrors = function (filterName, errors) {
-        this.filterErrors[filterName] = errors;
+        this._filterErrors[filterName] = errors;
     };
     
     Controller.prototype.getFilterErrors = function () {
         var ret = [],
             me = this;
 
-        util.Arrays.forEach(this.filterNames, function (filterName) {
-            var errors = me.filterErrors[filterName];
+        util.Arrays.forEach(this._filterNames, function (filterName) {
+            var errors = me._filterErrors[filterName];
 
             util.Arrays.forEach(errors, function (error) {
                 ret.push(error);                    
@@ -621,11 +682,30 @@
         return ret;
     };
     
-    Controller.prototype.observeFilterValues = function (callback) {
+    Controller.prototype.observeFilters = function (callback) {
         if (typeof callback === 'function') {
-            this.filterValuesObservers.push(callback);
+            this._filterObservers.push(callback);
         }
     };
+    
+    Controller.prototype.observeFilterValue = function (filterName, callback) {
+        if (typeof filterName === 'string'
+                && typeof callback === 'function'
+                && this._filterValueObservers.hasOwnProperty(filterName)
+                && this._filterValueObservers[filterName] instanceof Array) {
+            this.filterValueObservers[filterName].push(callback);
+        }  
+    };
+    
+    Controller.prototype.observeFilterOperator = function (filterName, callback) {
+        if (typeof filterName === 'string'
+                && typeof callback === 'function'
+                && this._filterOperatorObservers.hasOwnProperty(filterName)
+                && this._filterOperatorObservers[filterName] instanceof Array) {
+            this._filterOperatorObservers[filterName].push(callback);
+        }
+    };
+    
 
     Controller.prototype.submit = function () {
         var filterParams = {},
@@ -638,7 +718,7 @@
         } else {
             for (var i = 0; i < this.options.filters.length; ++i) {
                 var key = this.options.filters[i].name;
-                filterParams[key] = this.filterValues[key];
+                filterParams[key] = this._filterValues[key];
             }
 
             for (var i = 0; i < filterConstraints.length; ++i) {
@@ -668,91 +748,69 @@
     $.fn.kxFilterBox.registerFilterTypes([{
         name: 'text',
         
-        views: {
-            textInput: createTextFilter
-        },
+        view: createTextFilter,
         
         operators: [{
             name: 'equal',
             caption: 'equal',
-            view: 'textInput',
             isDefault: true
         }, {
             name: 'contains',
-            caption: 'contains',
-            view: 'textInput'
+            caption: 'contains'
         }, {
             name: 'startsWith',
-            caption: 'starts with',
-            view: 'textInput'
+            caption: 'starts with'
         }, {
             name: 'endsWith',
-            caption: 'ends with',
-            view: 'textInput'
+            caption: 'ends with'
         }]
     }, {
         name: 'date',
                                          
-        views: {
-            dateInput: createDateFilter,
-            dateRangeInput: createDateRangeFilter
-        },
+        view: createDateRangeFilter,
                                          
         operators: [{
             name: 'lessOrEqual',
-            caption: 'less or equal',
-            view: 'dateInput'
+            caption: 'less or equal'
         }, {
             name: 'less',
-            caption: 'less',
-            view: 'dateInput'
+            caption: 'less'
         }, {
             name: 'greaterOrEqual',
-            caption: 'greater or equal',
-            view: 'dateInput'
+            caption: 'greater or equal'
         }, {
             name: 'greater',
-            caption: 'greater',
-            view: 'dateInput'    
+            caption: 'greater'   
         }, {
             name: 'between',
             caption: 'between',
-            view: 'dateRangeInput',
             isDefault: true
         }]
     }, {
         name: 'singleSelect',
        
-        views: {
-            singleSelection: createSingleSelectFilter
-        },
+        view: createSingleSelectFilter,
                                         
         operators: [{
             name: 'equal',
             caption: 'equal',
-            view: 'singleSelection',
             isDefault: true
         }, {
             name: 'unequal',
-            caption: 'unequal',
-            view: 'singleSelection'
+            caption: 'unequal'
         }]
     }, {
         name: 'multiSelect',
        
-        views: {
-            multiSelection: createMultiSelectFilter
-        },
+        view: createMultiSelectFilter,
                                         
         operators: [{
             name: 'includes',
             caption: 'includes',
-            view: 'multiSelection',
             isDefault: true
         }, {
             name: 'excludes',
-            caption: 'excludes',
-            view: 'multiSelection'
+            caption: 'excludes'
         }]
     }]);
     

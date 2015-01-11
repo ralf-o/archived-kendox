@@ -51,7 +51,7 @@
                         $('<div  class="k-window" style="padding: 20px; text-align: center; position: absolute; top: 150px; left: 600px; z-index: 32001;"/>')
                             .append('<div style="padding: 10px;">Loading data...</div>')
                             .append('<div class="k-widget k-progressbar k-progressbar-horizontal k-progressbar-indeterminate"/>')
-                            .append('<div><button class="k-button k-button-icontext" style="margin-top: 9px"><span class="k-icon k-i-cancel"></span>Abort</button></div>')
+                            .append('<div><button class="k-button k-primary xxxk-button-icontext" style="margin-top: 9px"><!-- span class="k-icon k-i-cancel"></span -->Abort</button></div>')
                             .hide().fadeIn(500));
                     locked = true;
                 }
@@ -102,6 +102,7 @@
            });     
        } 
         
+       /*
        toolBarOptions.items.push({
            template: '<div class="search-field-container"/>' 
        });
@@ -117,7 +118,7 @@
         showOn: "click",
         alignToAnchor: true
     });
-        
+        */
         var menuButtonIds = [];
         
         for (var i = 0; i < actions.length; ++i) {
@@ -218,6 +219,18 @@
             dataSource: options.dataSource,
             pageSizes: [10, 25, 50, 100, 250, 500],
             buttonCount: 6
+        });
+        
+        ret.find("[title!='']").each(function (idx, elem) {
+            if ($.trim($(elem).attr('title')) !== '') {
+                $(elem).kendoTooltip({
+                    callout: false,
+                    position: 'top',
+                    showAfter: 400
+                }).on('mouseout', function () {
+                    $(this).data('kendoTooltip').hide(); 
+                });
+            }
         });
         
         return ret;

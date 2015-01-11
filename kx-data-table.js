@@ -104,7 +104,7 @@
         
         $('<th rowspan="2" class="k-header kx-data-table-meta-column"/>').append('<button class="k-button kx-data-table-row-details-toggle">+</button>').appendTo(tr1);
 
-        $('<th rowspan="2" class="k-header kx-data-table-meta-column kx-data-table-action-column"/>').append('').appendTo(tr1);
+       // $('<th rowspan="2" class="k-header kx-data-table-meta-column kx-data-table-action-column"/>').append('').appendTo(tr1);
 
         
         util.Arrays.forEach(tableParams.columnGroups, function (column) {
@@ -201,14 +201,14 @@
 
                
     
-               $('<td nowrap class="xk-header kx-data-table-meta-column kx-data-table-action-column"/>').append(createInlineRowActions(tableParams, record)).appendTo(tr);            
+            //   $('<td nowrap class="kx-data-table-action-column"/>').append(createInlineRowActions(tableParams, record)).appendTo(tr);            
 
                
                util.Arrays.forEach(tableParams.columns, function (column) {
                    createTableCell(column, record).appendTo(tr);
                });
                
-               $('<td nowrap class="xk-header kx-data-table-meta-column kx-data-table-action-column"/>').append(createInlineRowActions(tableParams, record)).appendTo(tr);            
+               $('<td nowrap class="kx-data-table-action-column"/>').append(createInlineRowActions(tableParams, record)).appendTo(tr);            
 
            }
         }

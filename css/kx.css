@@ -38,7 +38,7 @@
 /* ----------------------------------------- */
 
 .kx-filter-box {
-    padding: 6px;
+    padding: 14px 5px !important;
 }
 
 .kx-filter-box .kx-filter-box-column {
@@ -49,7 +49,14 @@
 
 .kx-filter-box .kx-filter-box-filter-cell {
     vertical-align: top;
-    padding: 0 0 5px 5px;
+    padding: 3px 0 5px 5px;
+}
+
+.kx-filter-box .kx-filter-box-filter-operator-label {
+    display: block;
+    font-size: 0.9;
+    color: #aaa;
+    font-style: italic;
 }
 
 .kx-filter-box .kx-filter-box-filter {
@@ -110,8 +117,8 @@
 
 
 .kx-data-table .kx-data-table-row-details-toggle {
-    padding: 0 2px 0 2px !important;
-    border-radius: 10px;
+    xxxpadding: 0 2px 0 2px !important;
+    xxxborder-radius: 10px;
 }
 
 .kx-data-table-details-row td {
@@ -181,7 +188,7 @@
 
 .kx-data-table .kx-data-table-action-column button {
     width: auto;
-    min-width: none;
+    min-width: 0 !important;
     max-width: none;
     padding: 2px 4px;
 }
@@ -198,6 +205,19 @@
 .kx-data-table .kx-data-table-action-column td {
     border: none;
     padding: 0 1px;
+}
+
+.kx-data-navigator .k-pager-wrap .k-dropdown {
+    width: 60px;
+}
+
+* {
+    color: black;
+}
+
+.kx-data-table tbody td {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
 }
 
 /*

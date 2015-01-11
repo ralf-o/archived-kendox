@@ -4,7 +4,7 @@
         ui = kx.ui = kx.ui || {};
   
     util.Objects = function () {
-        throw 'kx.util.Strings cannto be instantiated';
+        throw 'kx.util.Strings cannot be instantiated';
     };
     
     util.Objects.toString = function () {
@@ -104,11 +104,11 @@
     
     util.Arrays = function () {
         throw 'kx.util.Arrays cannot be instantiated';
-    }
+    };
     
     util.Arrays.toString = function () {
         return '<kx.util.Arrays>';
-    }
+    };
     
     util.Arrays.contains = function (arr, item) {
         var ret = false;
@@ -133,7 +133,7 @@
                 f(arr[i], i);
             }
         }
-    }
+    };
     
     util.Arrays.filter = function (arr, pred) {
         var ret = [],
@@ -151,7 +151,7 @@
         }
         
         return ret;
-    }
+    };
     
     util.Arrays.filterByUniqueIdentifier = function (arr, identifierFunction) {
         var ret = [],
