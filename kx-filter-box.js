@@ -176,6 +176,21 @@
         return ret;
     }
     
+    function xxxcreateTextFilter(filterOptions, controller) {
+        var ret = $('<span/>'),
+            filterName = util.Objects.asString(filterOptions.name),
+            value = util.Objects.asString(filterOptions.name),
+            createSingleTextField;
+        
+        createSingleTextField 
+        
+        
+        
+        
+        return ret;
+    }
+    
+    
     function createTextFilter(filterOptions, controller) {
         var filterName = util.Objects.asString(filterOptions.name),
             value = util.Objects.asString(filterOptions.value),
